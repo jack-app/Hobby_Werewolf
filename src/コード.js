@@ -38,13 +38,52 @@ function doPost(e) {
     var gflug = page.getRange(glow,4).getValue();
     var chk = check(gotText,gflug);
     switch (chk) {
+      //ゲーム開始ー
       case 0:
-        gflug = 1
-        page.getRange(glow,4).setValue(gflug)
+        gflug = 1;
+        page.getRange(glow,4).setValue(gflug);
 
+        var postData = {
+          "replyToken" :replyToken,
+        //  "replyToken" :replyToken,
+          "messages" : [
+            {
+              'type':'text',
+              'text':"参加押せ、その前に追加しろ",
+            },
+          {
+              'type':'template',
+              'altText':"牡丹",
+              'template':{
+                'type':'buttons',
+                'text':"参加友達",
+                'actions':[
+                  {
+                    'type':'message',
+                    'label':"参加",
+                    'text':"参加",
+                  },
+                 {
+                    'type':'uri',
+                    'label':"友達追加",
+                    'uri':"https://line.me/R/ti/p/krua6R8zjP",
+                  },
+                ]
+              }
+            },
+          ]
+        };
         break;
       default:
-
+        var postData = {
+            "replyToken" :replyToken,
+            "messages" : [
+              {
+                'type':'text',
+                'text':"うごいたー",
+              }
+            ]
+         };
     }
 
 //個ちゃの場合
@@ -60,26 +99,18 @@ function doPost(e) {
   var time = json.events[0].timestamp / 1000;
 
 
-  reply(replyToken)
+  reply(postData)
 }
 
 
-function reply(replyToken){
+function reply(postData){
 
   var url = "https://api.line.me/v2/bot/message/reply";
   var headers = {
     "Content-Type" : "application/json; charset=UTF-8",
     'Authorization': 'Bearer ' + access_token,
   };
-  var postData = {
-    "replyToken" :replyToken,
-    "messages" : [
-      {
-        'type':'text',
-        'text':"うごいたー",
-      }
-    ]
- };
+
   var options = {
     "method" : "post",
 
@@ -93,21 +124,12 @@ function reply(replyToken){
 
 
 
-function push(to,postData){
+function push(postData){
 
   var url = "https://api.line.me/v2/bot/message/push";
   var headers = {
     "Content-Type" : "application/json; charset=UTF-8",
     'Authorization': 'Bearer ' + access_token,
-  };
-   var postData = {
-    "to" : to,
-    "messages" : [
-      {
-        'type':'text',
-        'text':text,
-      }
-    ]
   };
 
   var options = {
@@ -147,10 +169,35 @@ function check(word,f){
 }
 
 function abcde(){
-/*  var page = sheet.getSheetByName('groupData');
-  var gflug = page.getRange(glow,4).getValue();
-  Logger.log(gflug);
-  */
-  var chk = check("開");
-  Logger.log(chk);
+  var postData = {
+    'to':"U5f0607c7da83ff31526d46ac6c1ca009",
+  //  "replyToken" :replyToken,
+    "messages" : [
+      {
+        'type':'text',
+        'text':"参加押せ、その前に追加しろ",
+      },
+    {
+        'type':'template',
+        'altText':"牡丹",
+        'template':{
+          'type':'buttons',
+          'text':"参加友達",
+          'actions':[
+            {
+              'type':'message',
+              'label':"参加",
+              'text':"参加",
+            },
+           {
+              'type':'uri',
+              'label':"友達追加",
+              'uri':"https://line.me/R/ti/p/krua6R8zjP",
+            },
+          ]
+        }
+      },
+    ]
+  };
+  push(postData);
 }
