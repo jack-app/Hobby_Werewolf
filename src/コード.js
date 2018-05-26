@@ -3,6 +3,8 @@ var access_token = "x9g3fJFqnkJDaU6Y4Me0CJlpD6cxB6NgV3WWnzfn8QnmavomCLRSWx1tKiTM
 
 
 var sheet = SpreadsheetApp.openById("1Heb6XE2rqb0xLMqDPDlWmadTyLaMLgryQX3s6-wHc78")
+var sheetG = sheet.getSheetByName('groupData');
+var sheetD = sheet.getSheetByName('data1');
 
 //var start = sheet.getRange().getValue();
 
@@ -22,57 +24,90 @@ function doPost(e) {
 //グルチャから送られてきてた場合
   if (sourceType == "group"){
 
-  var groupId = json.events[0].source.groupId;
-//    var groupId = "うなぎ";
-  var page = sheet.getSheetByName('groupData');
-  var glow = findRow(page,groupId,3);
-  //グループのデータがないとき
+    var groupId = json.events[0].source.groupId;
+
+    var glow = findRow(sheetG,groupId,3);
+    //グループのデータがないとき
     if (glow == 0){
-      glow = findRow(page,"",3);
-      Logger.log(glow);
-      page.getRange(glow,3).setValue(groupId);
-      page.getRange(glow,4).setValue(0);
+        glow = findRow(sheetG,"",3);
+        sheetG.getRange(glow,3).setValue(groupId);
+        sheetG.getRange(glow,4).setValue(0);
 
     }
 
-    var gflug = page.getRange(glow,4).getValue();
+    var gflug = sheetG.getRange(glow,4).getValue();
     var chk = check(gotText,gflug);
     switch (chk) {
-      //ゲーム開始ー
+        //ゲーム開始ー
       case 0:
-        gflug = 1;
-        page.getRange(glow,4).setValue(gflug);
+          sheetG.getRange(glow,4).setValue(1);
 
-        var postData = {
-          "replyToken" :replyToken,
-        //  "replyToken" :replyToken,
-          "messages" : [
+          var postData = {
+            "replyToken" :replyToken,
+          //  "replyToken" :replyToken,
+            "messages" : [
+              {
+                'type':'text',
+                'text':"参加押せ、その前に追加しろ",
+              },
             {
-              'type':'text',
-              'text':"参加押せ、その前に追加しろ",
-            },
-          {
-              'type':'template',
-              'altText':"牡丹",
-              'template':{
-                'type':'buttons',
-                'text':"参加友達",
-                'actions':[
-                  {
-                    'type':'message',
-                    'label':"参加",
-                    'text':"参加",
-                  },
-                 {
-                    'type':'uri',
-                    'label':"友達追加",
-                    'uri':"https://line.me/R/ti/p/krua6R8zjP",
-                  },
-                ]
-              }
-            },
-          ]
-        };
+                'type':'template',
+                'altText':"牡丹",
+                'template':{
+                  'type':'buttons',
+                  'text':"参加友達",
+                  'actions':[
+                    {
+                      'type':'message',
+                      'label':"参加",
+                      'text':"参加",
+                    },
+                   {
+                      'type':'uri',
+                      'label':"友達追加",
+                      'uri':"https://line.me/R/ti/p/krua6R8zjP",
+                    },
+                  ]
+                }
+              },
+            ]
+          };
+          break;
+        //参加ー
+      case 1:
+        var ulow = findRow(sheetD,userId,3);
+        if (ulow == 0){
+            ulow = findRow(sheetD,"",3);
+            sheetD.getRange(ulow,3).setValue(userId);
+//            var url = "https://api.line.me/v2/bot/group/"+groupId+"/member/"+userId
+//            var uname =
+
+        }
+        var nowGroupId = sheetD.getRange(ulow,5).getValue()
+        if (groupId == nowGroupId){
+          var postData = {
+              "replyToken" :replyToken,
+              "messages" : [
+                {
+                  'type':'text',
+                  'text':"うごたー",
+                }
+              ]
+           };
+        }else{
+          sheetD.getRange(ulow,5).setValue(groupId);
+          var c = sheetG.getRange(glow,5).getValue();
+          sheetG.getRange(glow,5).setValue(c+1)
+          var postData = {
+              "replyToken" :replyToken,
+              "messages" : [
+                {
+                  'type':'text',
+                  'text':"参加受け付けた",
+                },
+              ],
+          }
+        }
         break;
       default:
         var postData = {
@@ -159,9 +194,15 @@ function findRow(sheet,val,col){
 function check(word,f){
   switch (word) {
     case "開始":
-    if (f == 0){
-      return 0;
-    }
+
+      if (f == 0){
+        return 0;
+        }
+      break;
+    case "参加":
+      if (f == 1){
+        return 1;
+      }
       break;
     default:
       return -1;
@@ -171,7 +212,6 @@ function check(word,f){
 function abcde(){
   var postData = {
     'to':"U5f0607c7da83ff31526d46ac6c1ca009",
-  //  "replyToken" :replyToken,
     "messages" : [
       {
         'type':'text',
