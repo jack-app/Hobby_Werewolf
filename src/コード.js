@@ -79,8 +79,8 @@ function doPost(e) {
         if (ulow == 0){
             ulow = findRow(sheetD,"",3);
             sheetD.getRange(ulow,3).setValue(userId);
-//            var url = "https://api.line.me/v2/bot/group/"+groupId+"/member/"+userId
-//            var uname =
+        //            var url = "https://api.line.me/v2/bot/group/"+groupId+"/member/"+userId
+        //            var uname =
 
         }
         var nowGroupId = sheetD.getRange(ulow,5).getValue()
@@ -94,7 +94,9 @@ function doPost(e) {
                 }
               ]
            };
-        }else{
+        }else if (nowGroupId == "") {
+
+
           sheetD.getRange(ulow,5).setValue(groupId);
           var c = sheetG.getRange(glow,5).getValue();
           sheetG.getRange(glow,5).setValue(c+1)
@@ -107,7 +109,49 @@ function doPost(e) {
                 },
               ],
           }
+        }else{
+          var postData = {
+              "replyToken" :replyToken,
+              "messages" : [
+                {
+                  'type':'text',
+                  'text':"ほかのゲーム終わらせろ",
+                },
+              ],
+          }
         }
+
+        break;
+        //しめきりー
+     case 2:
+        sheetG.getRange(glow,4).setValue(2);
+        var postData = {
+            "replyToken" :replyToken,
+            "messages" :[
+              {
+                'type':'template',
+                'altText':"牡丹",
+                'template':{
+                  'type':'confirm',
+                  'text':"締め切っていいんか？",
+                  'actions':[
+                    {
+                      'type':'message',
+                      'label':"はい",
+                      'text':"はい",
+                    },
+                   {
+                      'type':'message',
+                      'label':"いいえ",
+                      'text':"いいえ",
+                    },
+
+                ],
+              }
+            }
+            ],
+        }
+
         break;
       default:
         var postData = {
@@ -204,40 +248,54 @@ function check(word,f){
         return 1;
       }
       break;
+    case "締切":
+      if (f == 1){
+        return 2;
+      }
+      break;
+    case "はい":
+      if (f == 2) {
+        return 3;
+      }
+    case "いいえ":
+     if (f == 2){
+       return 4;
+     }
+
     default:
       return -1;
   }
 }
 
 function abcde(){
-  var postData = {
-    'to':"U5f0607c7da83ff31526d46ac6c1ca009",
-    "messages" : [
-      {
-        'type':'text',
-        'text':"参加押せ、その前に追加しろ",
-      },
-    {
-        'type':'template',
-        'altText':"牡丹",
-        'template':{
-          'type':'buttons',
-          'text':"参加友達",
-          'actions':[
-            {
-              'type':'message',
-              'label':"参加",
-              'text':"参加",
-            },
-           {
-              'type':'uri',
-              'label':"友達追加",
-              'uri':"https://line.me/R/ti/p/krua6R8zjP",
-            },
-          ]
+
+
+    var postData = {
+        'to':"U5f0607c7da83ff31526d46ac6c1ca009",
+        "messages" :[
+          {
+            'type':'template',
+            'altText':"牡丹",
+            'template':{
+              'type':'confirm',
+              'text':"締め切っていいんか？",
+              'actions':[
+                {
+                  'type':'message',
+                  'label':"はい",
+                  'text':"はい",
+                },
+               {
+                  'type':'message',
+                  'label':"いいえ",
+                  'text':"いいえ",
+                },
+
+            ],
+          }
         }
-      },
-    ]
-  };
+        ],
+    };
+
   push(postData);
 }
