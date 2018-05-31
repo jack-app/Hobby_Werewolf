@@ -1,17 +1,17 @@
 
-var access_token = "x9g3fJFqnkJDaU6Y4Me0CJlpD6cxB6NgV3WWnzfn8QnmavomCLRSWx1tKiTMcjBbbvU5nqpO/WonNms0N8V+d2qMXK8s1h+wmWcmptNMKc4SXHcdxbfERbr/QXLCii5Q2XjHLXxwx9xEutA3qRRNfQdB04t89/1O/w1cDnyilFU=";
+var ACCESS_TOKEN = "x9g3fJFqnkJDaU6Y4Me0CJlpD6cxB6NgV3WWnzfn8QnmavomCLRSWx1tKiTMcjBbbvU5nqpO/WonNms0N8V+d2qMXK8s1h+wmWcmptNMKc4SXHcdxbfERbr/QXLCii5Q2XjHLXxwx9xEutA3qRRNfQdB04t89/1O/w1cDnyilFU=";
 
 
-var sheet = SpreadsheetApp.openById("1Heb6XE2rqb0xLMqDPDlWmadTyLaMLgryQX3s6-wHc78")
-var sheetG = sheet.getSheetByName('groupData');
-var sheetD = sheet.getSheetByName('data1');
+var SHEET = SpreadsheetApp.openById("1Heb6XE2rqb0xLMqDPDlWmadTyLaMLgryQX3s6-wHc78")
+var SHEET_G = SHEET.getSheetByName('groupData');
+var SHEET_D = SHEET.getSheetByName('data1');
 
-//var start = sheet.getRange().getValue();
+//var start = SHEET.getRange().getValue();
 
 //メイン
 function doPost(e) {
   var json = JSON.parse(e.postData.contents);
-  var data = sheet.getSheetByName('log1').getRange(1, 1).setValue(json.events);
+  var data = SHEET.getSheetByName('log1').getRange(1, 1).setValue(json.events);
   //細切れにしてみる
 
   var replyToken = json.events[0].replyToken;
@@ -26,21 +26,21 @@ function doPost(e) {
 
     var groupId = json.events[0].source.groupId;
 
-    var glow = findRow(sheetG,groupId,3);
+    var glow = findRow(SHEET_G,groupId,3);
     //グループのデータがないとき
     if (glow == 0){
-        glow = findRow(sheetG,"",3);
-        sheetG.getRange(glow,3).setValue(groupId);
-        sheetG.getRange(glow,4).setValue(0);
+        glow = findRow(SHEET_G,"",3);
+        SHEET_G.getRange(glow,3).setValue(groupId);
+        SHEET_G.getRange(glow,4).setValue(0);
 
     }
 
-    var gflug = sheetG.getRange(glow,4).getValue();
+    var gflug = SHEET_G.getRange(glow,4).getValue();
     var chk = check(gotText,gflug);
     switch (chk) {
         //ゲーム開始ー
       case 0:
-          sheetG.getRange(glow,4).setValue(1);
+          SHEET_G.getRange(glow,4).setValue(1);
 
           var postData = {
             "replyToken" :replyToken,
@@ -75,15 +75,15 @@ function doPost(e) {
           break;
         //参加ー
       case 1:
-        var ulow = findRow(sheetD,userId,3);
+        var ulow = findRow(SHEET_D,userId,3);
         if (ulow == 0){
-            ulow = findRow(sheetD,"",3);
-            sheetD.getRange(ulow,3).setValue(userId);
+            ulow = findRow(SHEET_D,"",3);
+            SHEET_D.getRange(ulow,3).setValue(userId);
         //            var url = "https://api.line.me/v2/bot/group/"+groupId+"/member/"+userId
         //            var uname =
 
         }
-        var nowGroupId = sheetD.getRange(ulow,5).getValue()
+        var nowGroupId = SHEET_D.getRange(ulow,5).getValue()
         if (groupId == nowGroupId){
           var postData = {
               "replyToken" :replyToken,
@@ -97,9 +97,9 @@ function doPost(e) {
         }else if (nowGroupId == "") {
 
 
-          sheetD.getRange(ulow,5).setValue(groupId);
-          var c = sheetG.getRange(glow,5).getValue();
-          sheetG.getRange(glow,5).setValue(c+1)
+          SHEET_D.getRange(ulow,5).setValue(groupId);
+          var c = SHEET_G.getRange(glow,5).getValue();
+          SHEET_G.getRange(glow,5).setValue(c+1)
           var postData = {
               "replyToken" :replyToken,
               "messages" : [
@@ -123,8 +123,8 @@ function doPost(e) {
 
         break;
         //しめきりー
-     case 2:
-        sheetG.getRange(glow,4).setValue(2);
+      case 2:
+        SHEET_G.getRange(glow,4).setValue(2);
         var postData = {
             "replyToken" :replyToken,
             "messages" :[
@@ -153,6 +153,44 @@ function doPost(e) {
         }
 
         break;
+      case 3:
+        var c = SHEET_G.getRange(glow,5).getValue();
+        if (c >= 5) {
+          SHEET_G.getRange(glow,4).setValue(5);
+          var postData = {
+              "replyToken" :replyToken,
+              "messages" : [
+                {
+                  'type':'text',
+                  'text':"はじめっぞー",
+                }
+              ]
+           };
+        }else {
+          SHEET_G.getRange(glow,4).setValue(1);
+          var postData = {
+              "replyToken" :replyToken,
+              "messages" : [
+                {
+                  'type':'text',
+                  'text':"たりねーぞー",
+                }
+              ]
+           };
+        }
+        break;
+      case 4:
+        SHEET_G.getRange(glow,4).setValue(1);
+        var postData = {
+            "replyToken" :replyToken,
+            "messages" : [
+              {
+                'type':'text',
+                'text':"はよしろー",
+              }
+            ]
+         };
+        break;
       default:
         var postData = {
             "replyToken" :replyToken,
@@ -164,11 +202,10 @@ function doPost(e) {
             ]
          };
     }
-
+    reply(postData);
 //個ちゃの場合
   }else{
-
-
+    userChat(userId,gotText,replyToken);
   }
 
 
@@ -178,60 +215,7 @@ function doPost(e) {
   var time = json.events[0].timestamp / 1000;
 
 
-  reply(postData)
-}
 
-
-function reply(postData){
-
-  var url = "https://api.line.me/v2/bot/message/reply";
-  var headers = {
-    "Content-Type" : "application/json; charset=UTF-8",
-    'Authorization': 'Bearer ' + access_token,
-  };
-
-  var options = {
-    "method" : "post",
-
-
-    "headers" : headers,
-    "payload" : JSON.stringify(postData),
-  };
-
-  return UrlFetchApp.fetch(url, options);
-}
-
-
-
-function push(postData){
-
-  var url = "https://api.line.me/v2/bot/message/push";
-  var headers = {
-    "Content-Type" : "application/json; charset=UTF-8",
-    'Authorization': 'Bearer ' + access_token,
-  };
-
-  var options = {
-    "method" : "post",
-    "headers" : headers,
-    "payload" : JSON.stringify(postData)
-  };
-
-    return UrlFetchApp.fetch(url, options);
-
-}
-
-//
-function findRow(sheet,val,col){
-  var dat = sheet.getDataRange().getValues(); //受け取ったシートのデータを二次元配列に取得
-
- for(var i=1;i<dat.length;i++){
-    if(dat[i][col-1] === val){
-     return i+1;
-
-    }
-  }
-  return 0;
 }
 
 
@@ -252,7 +236,6 @@ function check(word,f){
       if (f == 1){
         return 2;
       }
-      break;
     case "はい":
       if (f == 2) {
         return 3;
@@ -265,37 +248,4 @@ function check(word,f){
     default:
       return -1;
   }
-}
-
-function abcde(){
-
-
-    var postData = {
-        'to':"U5f0607c7da83ff31526d46ac6c1ca009",
-        "messages" :[
-          {
-            'type':'template',
-            'altText':"牡丹",
-            'template':{
-              'type':'confirm',
-              'text':"締め切っていいんか？",
-              'actions':[
-                {
-                  'type':'message',
-                  'label':"はい",
-                  'text':"はい",
-                },
-               {
-                  'type':'message',
-                  'label':"いいえ",
-                  'text':"いいえ",
-                },
-
-            ],
-          }
-        }
-        ],
-    };
-
-  push(postData);
 }
