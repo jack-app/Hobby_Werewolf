@@ -40,39 +40,9 @@ function doPost(e) {
     switch (chk) {
         //ゲーム開始ー
       case 0:
-          SHEET_G.getRange(glow,4).setValue(1);
-
-          var postData = {
-            "replyToken" :replyToken,
-          //  "replyToken" :replyToken,
-            "messages" : [
-              {
-                'type':'text',
-                'text':"参加押せ、その前に追加しろ",
-              },
-            {
-                'type':'template',
-                'altText':"牡丹",
-                'template':{
-                  'type':'buttons',
-                  'text':"参加友達",
-                  'actions':[
-                    {
-                      'type':'message',
-                      'label':"参加",
-                      'text':"参加",
-                    },
-                   {
-                      'type':'uri',
-                      'label':"友達追加",
-                      'uri':"https://line.me/R/ti/p/krua6R8zjP",
-                    },
-                  ]
-                }
-              },
-            ]
-          };
-          break;
+        SHEET_G.getRange(glow,4).setValue(1);
+        gReplyStart(replyToken)
+        break;
         //参加ー
       case 1:
         var ulow = findRow(SHEET_D,userId,3);
@@ -99,16 +69,8 @@ function doPost(e) {
 
           SHEET_D.getRange(ulow,5).setValue(groupId);
           var c = SHEET_G.getRange(glow,5).getValue();
-          SHEET_G.getRange(glow,5).setValue(c+1)
-          var postData = {
-              "replyToken" :replyToken,
-              "messages" : [
-                {
-                  'type':'text',
-                  'text':"参加受け付けた",
-                },
-              ],
-          }
+          SHEET_G.getRange(glow,5).setValue(c+1);
+          gReplyJoin(replyToken);
         }else{
           var postData = {
               "replyToken" :replyToken,
@@ -125,72 +87,24 @@ function doPost(e) {
         //しめきりー
       case 2:
         SHEET_G.getRange(glow,4).setValue(2);
-        var postData = {
-            "replyToken" :replyToken,
-            "messages" :[
-              {
-                'type':'template',
-                'altText':"牡丹",
-                'template':{
-                  'type':'confirm',
-                  'text':"締め切っていいんか？",
-                  'actions':[
-                    {
-                      'type':'message',
-                      'label':"はい",
-                      'text':"はい",
-                    },
-                   {
-                      'type':'message',
-                      'label':"いいえ",
-                      'text':"いいえ",
-                    },
 
-                ],
-              }
-            }
-            ],
-        }
 
         break;
       case 3:
         var c = SHEET_G.getRange(glow,5).getValue();
         if (c >= 5) {
           SHEET_G.getRange(glow,4).setValue(5);
-          var postData = {
-              "replyToken" :replyToken,
-              "messages" : [
-                {
-                  'type':'text',
-                  'text':"はじめっぞー",
-                }
-              ]
-           };
+          gReplyGame(replyToken)
         }else {
           SHEET_G.getRange(glow,4).setValue(1);
-          var postData = {
-              "replyToken" :replyToken,
-              "messages" : [
-                {
-                  'type':'text',
-                  'text':"たりねーぞー",
-                }
-              ]
-           };
+          gReplyNotGame(replyToken)
         }
         break;
       case 4:
         SHEET_G.getRange(glow,4).setValue(1);
-        var postData = {
-            "replyToken" :replyToken,
-            "messages" : [
-              {
-                'type':'text',
-                'text':"はよしろー",
-              }
-            ]
-         };
+        gReplyJoinEndCancel(replyToken)
         break;
+        
       default:
         var postData = {
             "replyToken" :replyToken,
@@ -201,8 +115,9 @@ function doPost(e) {
               }
             ]
          };
+        reply(postData);
     }
-    reply(postData);
+
 //個ちゃの場合
   }else{
     userChat(userId,gotText,replyToken);
@@ -226,7 +141,6 @@ function check(word,f){
       if (f == 0){
         return 0;
         }
-      break;
     case "参加":
       if (f == 1){
         return 1;
