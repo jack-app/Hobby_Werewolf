@@ -40,7 +40,7 @@ function push(postData){
 
 //
 function findRow(sheet,val,col){
-  var dat = SHEET.getDataRange().getValues(); //受け取ったシートのデータを二次元配列に取得
+  var dat = sheet.getDataRange().getValues(); //受け取ったシートのデータを二次元配列に取得
 
  for(var i=1;i<dat.length;i++){
     if(dat[i][col-1] === val){
