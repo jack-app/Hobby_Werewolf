@@ -10,28 +10,30 @@ function doPost(e) {
   var json = JSON.parse(e.postData.contents);
   var data = sheet.getSheetByName('log1').getRange(1, 1).setValue(json.events);
   //細切れにしてみる
-  
+
+  var ssss;
+
   var replyToken = json.events[0].replyToken;
-  
+
   var sourceType = json.events[0].source.type;
-  
+
   if (sourceType == "group"){
     var groupId = json.events[0].source.groupId;
   }
   var userId =json.events[0].source.userId;
-  
+
   var gotText = json.events[0].message.text;
- 
+
 //  SpreadsheetApp.openById(spreadsheet_id).getSheetByName('log1').getRange(2, 1).setValue(json.events);
   var time = json.events[0].timestamp / 1000;
-  
-  
+
+
   reply(json)
 }
 
 
 function reply(json){
-  
+
   var url = "https://api.line.me/v2/bot/message/reply";
   var headers = {
     "Content-Type" : "application/json; charset=UTF-8",
@@ -48,13 +50,13 @@ function reply(json){
  };
   var options = {
     "method" : "post",
- 
-    
+
+
     "headers" : headers,
     "payload" : JSON.stringify(postData),
   };
 
-  return UrlFetchApp.fetch(url, options);  
+  return UrlFetchApp.fetch(url, options);
 }
 
 
@@ -75,13 +77,13 @@ function push(to,postData){
       }
     ]
   };
-  
+
   var options = {
     "method" : "post",
     "headers" : headers,
     "payload" : JSON.stringify(postData)
   };
 
-    return UrlFetchApp.fetch(url, options);  
+    return UrlFetchApp.fetch(url, options);
 
 }
