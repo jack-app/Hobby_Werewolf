@@ -166,8 +166,7 @@ function doPost(e) {
 
 //個ちゃの場合
   }else{
-
-
+      friendAdd();
   }
 
 
