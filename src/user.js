@@ -16,6 +16,6 @@ function userChat(userId,gotText,replyToken){
                 }
             ]
         }
-        reply(message);
+        push(message);
     }
 }
