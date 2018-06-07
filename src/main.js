@@ -18,7 +18,7 @@ function doPost(e) {
 
   var sourceType = json.events[0].source.type;
   var gotText = json.events[0].message.text;
-
+  var action = json.events[0].postback.data;
   var userId =json.events[0].source.userId;
 
 //グルチャから送られてきてた場合
@@ -38,12 +38,12 @@ function doPost(e) {
     var gflug = SHEET_G.getRange(glow,4).getValue();
     var chk = check(gotText,gflug);
     switch (chk) {
-        //ゲーム開始ー
+      //ゲーム開始ー
       case 0:
         SHEET_G.getRange(glow,4).setValue(1);
         gReplyStart(replyToken)
         break;
-        //参加ー
+      //参加ー
       case 1:
         var ulow = findRow(SHEET_D,userId,3);
         if (ulow == 0){
@@ -84,27 +84,33 @@ function doPost(e) {
         }
 
         break;
-        //しめきりー
+      //しめきりー
       case 2:
         SHEET_G.getRange(glow,4).setValue(2);
 
 
         break;
+      //はい
       case 3:
         var c = SHEET_G.getRange(glow,5).getValue();
         if (c >= 5) {
-          SHEET_G.getRange(glow,4).setValue(5);
+          SHEET_G.getRange(glow,4).setValue(4);
           gReplyGame(replyToken)
         }else {
           SHEET_G.getRange(glow,4).setValue(1);
           gReplyNotGame(replyToken)
         }
         break;
+      //いいえ
       case 4:
         SHEET_G.getRange(glow,4).setValue(1);
         gReplyJoinEndCancel(replyToken)
         break;
-
+      //投票
+      case 5:
+        SHEET_G.getRange(glow,4).setValue(6);
+        gReplyVoteSt(groupId,replyToken,glow);
+        break;
       default:
         var postData = {
             "replyToken" :replyToken,
@@ -121,6 +127,18 @@ function doPost(e) {
 //個ちゃの場合
   }else{
     userChat(userId,gotText,replyToken);
+    var ulow = findRow(SHEET_D,userId,3);
+    var groupId = SHEET_D.getRange(ulow,5).getValue();
+    var glow = findRow(SHEET_G,groupId,3);
+    var gData = SHEET_G.getRange(glow,3,1,4).getValues();
+    var gflug = gData[0][1];
+    var pCount = gData[0][2];
+    var hCount = gData[0][3];
+    if ((pCount === hCount) && (gflug === 4)) {
+      SHEET_G.getRange(glow,4).setValue(5);
+      gPushGameStart(groupId,glow,hCount);
+    }
+
   }
 
 

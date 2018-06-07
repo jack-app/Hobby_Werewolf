@@ -23,6 +23,10 @@ function check(word,f){
      if (f == 2){
        return 4;
      }
+     case "投票":
+      if (f == 5) {
+        return 5;
+      }
 
     default:
       return -1;
