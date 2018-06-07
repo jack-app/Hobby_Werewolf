@@ -127,7 +127,7 @@ function doPost(e) {
 //個ちゃの場合
   }else{
       
-    userChat(userId,gflug,gotText,replyToken);
+    userChat(userId,gotText,replyToken);
     // 趣味が全員分登録された時、グループに開始メッセージを送る
     var ulow = findRow(SHEET_D,userId,3);
     var groupId = SHEET_D.getRange(ulow,5).getValue();
