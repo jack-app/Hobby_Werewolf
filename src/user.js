@@ -1,4 +1,4 @@
-function userChat(userId,gotText,replyToken){
+function userChat(userId,gflug,gotText,replyToken){
     //（できれば）ルールって言われた時
     if(gotText == "@ルール") {
         
@@ -7,7 +7,7 @@ function userChat(userId,gotText,replyToken){
     // ゲーム中の個人メッセージ
     //var gflug = SHEET_G.getRange(glow,4).getValue();
     if(gflug == 4) {
-        message = {
+        var message = {
             "to": userId,
             "messages": [
                 {
@@ -15,7 +15,7 @@ function userChat(userId,gotText,replyToken){
                     "text": "Hello, user!"
                 }
             ]
-        }
+        };
         push(message);
     }
 }
