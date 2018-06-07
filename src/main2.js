@@ -128,7 +128,7 @@ function doPost(e) {
     }
     if (type = 'postback') {
     var data = json.events[0].postback;
-     postcheck(data,gflug,glow);
+     postcheck(data,gflug,glow,replyToken);
     }
 
 //個ちゃの場合
