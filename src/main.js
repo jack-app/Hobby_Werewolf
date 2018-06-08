@@ -25,7 +25,7 @@ function doPost(e) {
   if (sourceType == "group"){
 
     var groupId = json.events[0].source.groupId;
-    if (type = 'join') {
+    if (type == 'join') {
         gReplyJoin(replyToken);
     }
 
@@ -126,7 +126,7 @@ function doPost(e) {
          };
         reply(postData);
     }
-    if (type = 'postback') {
+    if (type == 'postback') {
     var data = json.events[0].postback;
      postcheck(data,gflug,glow,replyToken);
     }
