@@ -3,11 +3,10 @@ function gReplyStart(replyToken){
 
   var postData = {
     "replyToken" :replyToken,
-    //  "replyToken" :replyToken,
     "messages" : [
       {
         'type':'text',
-        'text':"参加押せ、その前に追加しろ",
+        'text':"参加する人はこのアカウントを友達追加して、「参加する」ボタンを押したってや！",
       },
     {
         'type':'template',
@@ -41,7 +40,7 @@ function gReplyJoin(replyToken){
       "messages" : [
         {
           'type':'text',
-          'text':"参加受け付けた",
+          'text':"参加を受け付けたー",
         },
       ],
   }
@@ -57,7 +56,7 @@ function gReplyJoinEnd(replyToken){
           'altText':"牡丹",
           'template':{
             'type':'confirm',
-            'text':"締め切っていいんか？",
+            'text':"締め切ってええんか？",
             'actions':[
               {
                 'type':'message',
@@ -78,7 +77,7 @@ function gReplyJoinEnd(replyToken){
   reply(postData);
 }
 
-function gReplyGame(replyToken){
+function gReplyGame(replyToken,groupId){
   var postData = {
       "replyToken" :replyToken,
       "messages" : [
@@ -88,7 +87,7 @@ function gReplyGame(replyToken){
         },
         {
           'type':'text',
-          'text':"個人チャットにとんで趣味を登録してください。",
+          'text':"個人チャットにとんで趣味を登録してな！",
         },
         {
             'type':'template',
@@ -112,6 +111,22 @@ function gReplyGame(replyToken){
 
 
   reply(postData);
+  var glow = findRow(SHEET_G,groupId,3);
+  var c=SHEET_G.getRange(glow,5).getValue();
+  for (var i = 0; i < c; i++) {
+    var ulow = findRow(SHEET_D,groupId+i,6);
+    var userId = SHEET_D.getRange(ulow,3).getValue();
+    var postData = {
+           'to':userId,
+           "messages" : [
+             {
+               'type':'text',
+               'text':"趣味を送ってや！なるべくわかりにくいやつがええで！",
+             },
+           ]
+       }
+          push(postData);
+  }
 }
 
 function gReplyNotGame(replyToken){
@@ -120,7 +135,7 @@ function gReplyNotGame(replyToken){
       "messages" : [
         {
           'type':'text',
-          'text':"たりねーぞー",
+          'text':"ゲームするのに人数たりまへんで！",
         }
       ]
    };
@@ -133,7 +148,7 @@ function gReplyJoinEndCancel(replyToken){
       "messages" : [
         {
           'type':'text',
-          'text':"はよしろー",
+          'text':"わかったでー",
         }
       ]
    };
@@ -146,7 +161,7 @@ function gPushGameStart(groupId,glow,c){
    "messages" : [
      {
        'type':'text',
-       'text':"それではゲームを始めます",
+       'text':"ほなゲームを始めるで！",
      },
    ]
 
@@ -170,20 +185,20 @@ function gPushGameStart(groupId,glow,c){
    "messages" : [
      {
        'type':'text',
-       'text':"1つ目の趣味は"+hob1+"です。",
+       'text':"1つ目の趣味は"+hob1+"で",
      },
 
     {
        'type':'text',
-       'text':"2つ目の趣味は"+hob2+"です。",
+       'text':"2つ目の趣味は"+hob2+"や！",
      },
      {
        'type':'text',
-       'text':"では以上2つの趣味がそれぞれだれのものなのか、話し合って推測してください",
+       'text':"では以上2つの趣味がそれぞれだれのもんか、話し合って推測してや！",
      },
      {
      'type':'text',
-     'text':"話し合いが終わったら　投票　と送ってください。",
+     'text':"話し合いが終わったら　@投票　と送ってな！",
     }
    ]
    }
@@ -191,7 +206,90 @@ function gPushGameStart(groupId,glow,c){
 }
 
 function gReplyVote1(groupId,replyToken,glow){
+  var postData = {
+      "replyToken" :replyToken,
+      "messages" : [
+        {
+          'type':'text',
+          'text':"個人チャットにとんで投票してや！",
+        },
+        {
+            'type':'template',
+            'altText':"牡丹",
+            'template':{
+              'type':'buttons',
+              'text':"個チャボタン",
+              'actions':[
+
+               {
+                  'type':'uri',
+                  'label':"個チャ",
+                  'uri':"https://line.me/R/ti/p/krua6R8zjP",
+                },
+              ]
+            }
+          },
+      ]
+   };
+  reply(postData);
   var c=SHEET_G.getRange(glow,5).getValue();
+  for (var k = 0; k < c; k++) {
+
+  var columns=[];
+  var number = 0;
+
+  var colum=[];
+  for (var i = c; i > 0; i -= 3) {
+    colum.push((i>2)+(i>1)+(i>0));
+  }
+  var columns=[];
+  for (var i = 0; i < colum.length; i++) {
+  var actions=[];
+  for (var j = 0; j < 3; j++) {
+      if ( (j < colum[i]) && (k !== number)){
+        var ulow = findRow(SHEET_D,groupId+number,6);
+        var uName = SHEET_D.getRange(ulow,4).getValue();
+        action ={
+          'type':'message',
+          'label':uName,
+          'text':number+"に投票",
+        }
+      }else {
+        action =  {
+          'type':'message',
+          'label':"からっぽ",
+          'text':"しかし、投票できなかった！",
+        };
+      }
+      actions.push(action);
+       number ++;
+      };
+
+       var element = {
+          'text' : "誰に投票する？",
+          'actions' : actions,
+       }
+      columns.push(element);
+
+
+    }
+   var ulow = findRow(SHEET_D,groupId+k,6);
+   var userId = SHEET_D.getRange(ulow,3).getValue();
+   var postData = {
+          'to':userId,
+          "messages" : [
+            {
+                'type':'template',
+                'altText':"牡丹",
+                'template':{
+                  'type':'carousel',
+                  'columns': columns
+                },
+            },
+          ]
+      }
+         push(postData);
+  }
   /*
   var colum=[]
   var number = 0

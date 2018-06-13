@@ -14,15 +14,19 @@ function doPost(e) {
   //細切れにしてみる
 
   var replyToken = json.events[0].replyToken;
-
+  var type = json.events[0].type;
+  var userId = json.events[0].source.userId;
+  if (type == 'unfollow') {
+    var ulow = findRow(SHEET_D, userId, 3);
+    SHEET_D.getRange(ulow, 3, 1, 8).setValues(["", "", "", "", "", "", "", ""]);
+  }
   var sourceType = json.events[0].source.type;
   var gotText = json.events[0].message.text;
-  var action = json.events[0].postback.data;
-  var userId =json.events[0].source.userId;
-  var type = json.events[0].type;
+
+
 
 //グルチャから送られてきてた場合
-  if (sourceType == "group"){
+  if (sourceType ==  "group") {
 
     var groupId = json.events[0].source.groupId;
     if (type == 'join') {
@@ -52,6 +56,8 @@ function doPost(e) {
         if (ulow == 0){
             ulow = findRow(SHEET_D,"",3);
             SHEET_D.getRange(ulow,3).setValue(userId);
+            SHEET_D.getRange(ulow,6).setValue(groupId+c);
+            setName(userId,ulow);
         //            var url = "https://api.line.me/v2/bot/group/"+groupId+"/member/"+userId
         //            var uname =
 
@@ -80,7 +86,7 @@ function doPost(e) {
               "messages" : [
                 {
                   'type':'text',
-                  'text':"ほかのゲーム終わらせろ",
+                  'text':"ほかのゲーム終わらせてや！",
                 },
               ],
           }
@@ -90,7 +96,7 @@ function doPost(e) {
       //しめきりー
       case 2:
         SHEET_G.getRange(glow,4).setValue(2);
-
+        gReplyJoinEnd(replyToken);
 
         break;
       //はい
@@ -98,7 +104,7 @@ function doPost(e) {
         var c = SHEET_G.getRange(glow,5).getValue();
         if (c >= 5) {
           SHEET_G.getRange(glow,4).setValue(4);
-          gReplyGame(replyToken)
+          gReplyGame(replyToken,groupId)
         }else {
           SHEET_G.getRange(glow,4).setValue(1);
           gReplyNotGame(replyToken)
@@ -112,7 +118,7 @@ function doPost(e) {
       //投票
       case 5:
         SHEET_G.getRange(glow,4).setValue(6);
-        gReplyVoteSt(groupId,replyToken,glow);
+        gReplyVote1(groupId,replyToken,glow);
         break;
       default:
         var postData = {
@@ -126,28 +132,35 @@ function doPost(e) {
          };
         reply(postData);
     }
-    if (type == 'postback') {
-    var data = json.events[0].postback;
-     postcheck(data,gflug,glow,replyToken);
-    }
+
 
 //個ちゃの場合
   }else{
 
-    userChat(userId,gflug,gotText,replyToken);
+
     // 趣味が全員分登録された時、グループに開始メッセージを送る
+      userChat(userId,gotText,replyToken);
     var ulow = findRow(SHEET_D,userId,3);
     var groupId = SHEET_D.getRange(ulow,5).getValue();
     var glow = findRow(SHEET_G,groupId,3);
     var gData = SHEET_G.getRange(glow,3,1,4).getValues();
     var gflug = gData[0][1];
+
+
+
     var pCount = gData[0][2];
     var hCount = gData[0][3];
     if ((pCount === hCount) && (gflug === 4)) {
       SHEET_G.getRange(glow,4).setValue(5);
       gPushGameStart(groupId,glow,hCount);
     }
-
+    if ((gflug === 6) && (gotText.slice(-3) === "に投票")){
+      voting1(Number(gotText.slice(0,-3)),glow,replyToken,pCount,ulow);
+    }
+    if ((gflug === 7) && (gotText.slice(-3) === "に投票")){
+      debug(11);
+      voting2(Number(gotText.slice(0,-3)),glow,replyToken,pCount,ulow);
+    }
   }
 
 

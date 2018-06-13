@@ -50,3 +50,19 @@ function findRow(sheet,val,col){
   }
   return 0;
 }
+
+function setName(userId,ulow) {
+ var url = "https://api.line.me/v2/bot/profile/"+ userId;
+  var headers = {
+    "Content-Type" : "application/json; charset=UTF-8",
+    'Authorization': 'Bearer ' + ACCESS_TOKEN,
+  };
+
+  var options = {
+
+    "headers" : headers,
+
+  };
+    var uName = JSON.parse(UrlFetchApp.fetch(url, options));
+    SHEET_D.getRange(ulow,4).setValue(uName.displayName);
+}
